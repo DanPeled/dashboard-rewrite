@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:elastic_dashboard/widgets/nt_widgets/multi-topic/fms_info.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -454,7 +453,7 @@ class FieldWidgetAoltra extends NTWidget {
         positionOffset.dx - length / 2, positionOffset.dy - width / 2, 0.0)
       ..rotateZ(-radians(objectPosition[2]));
 
-    Widget otherObject = SwervePinat(lengthwheel: length, widthwheel: width);
+    Widget otherObject = SwervePainter(lengthwheel: length, widthwheel: width);
 
     return Transform(
       origin: Offset(length, width) / 2,
@@ -707,7 +706,7 @@ class TrajectoryPainter extends CustomPainter {
 }
 
 // Robot
-class RobotPinat extends StatelessWidget {
+class RobotPainter extends StatelessWidget {
   final Color backgraundColor;
   final double lengthrobot;
   final double widthrobot;
@@ -715,7 +714,7 @@ class RobotPinat extends StatelessWidget {
   CustomPainter? centerPainter;
   final Color? centerPainterColor;
 
-  RobotPinat(
+  RobotPainter(
       {this.backgraundColor = Colors.black,
       required this.lengthrobot,
       required this.widthrobot,
@@ -725,7 +724,8 @@ class RobotPinat extends StatelessWidget {
       super.key}) {
     centerPainter = centerPainter1 ??
         TrianglePainter(
-            strokeColor: centerPainterColor ?? Color.fromARGB(255, 0, 255, 0));
+            strokeColor:
+                centerPainterColor ?? const Color.fromARGB(255, 0, 255, 0));
   }
 
   @override
@@ -754,13 +754,13 @@ class RobotPinat extends StatelessWidget {
 }
 
 // Swerve
-class SwervePinat extends StatelessWidget {
+class SwervePainter extends StatelessWidget {
   final Color backgraundColor;
   double lengthwheel;
   double widthwheel;
   final Color baparsColor;
 
-  SwervePinat(
+  SwervePainter(
       {this.backgraundColor = Colors.black,
       required this.lengthwheel,
       required this.widthwheel,
@@ -791,9 +791,9 @@ class SwervePinat extends StatelessWidget {
 }
 
 class RobotPropreties {
-  String _name;
-  double _width;
-  double _length;
+  final String _name;
+  final double _width;
+  final double _length;
   Widget _image;
   bool hide;
 
