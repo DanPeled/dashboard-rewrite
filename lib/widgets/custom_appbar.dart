@@ -12,7 +12,7 @@ class CustomAppBar extends AppBar {
   final MenuBar menuBar;
   final VoidCallback? onWindowClose;
 
-  static const double _leadingSize = 500;
+  static const double _leadingSize = 600;
   static const ThemeType buttonType = ThemeType.materia;
 
   /// Creates a custom app bar.

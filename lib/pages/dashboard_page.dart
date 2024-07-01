@@ -11,6 +11,7 @@ import 'package:dot_cast/dot_cast.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/stacked_options.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:path/path.dart';
 import 'package:popover/popover.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -223,8 +224,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         connection: ntConnection,
         onNotification: (title, description, icon) {
           setState(() {
-            ColorScheme colorScheme = Theme.of(context).colorScheme;
-            TextTheme textTheme = Theme.of(context).textTheme;
+            ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
+            TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
             var widget = ElegantNotification(
               autoDismiss: true,
               showProgressIndicator: true,
@@ -246,7 +247,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
                 itemOffset: const Offset(0, 5),
               ),
             );
-            if (mounted) widget.show(context);
+            if (mounted) widget.show(context as BuildContext);
           });
         });
     _robotNotificationListener.listen();
@@ -263,7 +264,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
     bool showConfirmation = !_mapEquals(savedJson, currentJson);
 
     if (showConfirmation) {
-      _showWindowCloseConfirmation(context);
+      _showWindowCloseConfirmation(context as BuildContext);
       await windowManager.focus();
     } else {
       await _closeWindow();
@@ -304,8 +305,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   Future<void> _saveLayout() async {
     Map<String, dynamic> jsonData = _toJson();
 
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).textTheme;
+    ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
+    TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
 
     bool successful =
         await _preferences.setString(PrefKeys.layout, jsonEncode(jsonData));
@@ -328,7 +329,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         description: const Text('Layout saved successfully!'),
       );
       if (mounted) {
-        notification.show(context);
+        notification.show(context as BuildContext);
       }
     } else {
       logger.error('Could not save layout');
@@ -347,7 +348,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         description: const Text('Failed to save layout, please try again!'),
       );
       if (mounted) {
-        notification.show(context);
+        notification.show(context as BuildContext);
       }
     }
   }
@@ -371,9 +372,9 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
 
   void _checkForUpdates(
       {bool notifyIfLatest = true, bool notifyIfError = true}) async {
-    ColorScheme colorScheme = Theme.of(context).colorScheme;
-    TextTheme textTheme = Theme.of(context).textTheme;
-    ButtonThemeData buttonTheme = ButtonTheme.of(context);
+    ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
+    TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
+    ButtonThemeData buttonTheme = ButtonTheme.of(context as BuildContext);
 
     UpdateCheckerResponse updateResponse =
         await _updateChecker.isUpdateAvailable();
@@ -399,7 +400,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
       );
 
       if (mounted) {
-        notification.show(context);
+        notification.show(context as BuildContext);
       }
       return;
     }
@@ -436,7 +437,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
       );
 
       if (mounted) {
-        notification.show(context);
+        notification.show(context as BuildContext);
       }
     } else if (updateResponse.onLatestVersion && notifyIfLatest) {
       ElegantNotification notification = ElegantNotification(
@@ -456,7 +457,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
       );
 
       if (mounted) {
-        notification.show(context);
+        notification.show(context as BuildContext);
       }
     }
   }
@@ -644,8 +645,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   void _showJsonLoadingError(String errorMessage) {
     logger.error(errorMessage);
     Future(() {
-      ColorScheme colorScheme = Theme.of(context).colorScheme;
-      TextTheme textTheme = Theme.of(context).textTheme;
+      ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
+      TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
 
       int lines = '\n'.allMatches(errorMessage).length + 1;
 
@@ -663,15 +664,15 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
               fontWeight: FontWeight.bold,
             )),
         description: Flexible(child: Text(errorMessage)),
-      ).show(context);
+      ).show(context as BuildContext);
     });
   }
 
   void _showJsonLoadingWarning(String warningMessage) {
     logger.warning(warningMessage);
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      ColorScheme colorScheme = Theme.of(context).colorScheme;
-      TextTheme textTheme = Theme.of(context).textTheme;
+      ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
+      TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
 
       int lines = '\n'.allMatches(warningMessage).length + 1;
 
@@ -689,7 +690,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
               fontWeight: FontWeight.bold,
             )),
         description: Flexible(child: Text(warningMessage)),
-      ).show(context);
+      ).show(context as BuildContext);
     });
   }
 
@@ -747,7 +748,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         modifiers: [KeyModifier.control],
       ),
       callback: () {
-        if (ModalRoute.of(context)?.isCurrent ?? false) {
+        if (ModalRoute.of(context as BuildContext)?.isCurrent ?? false) {
           _moveTabLeft();
         }
       },
@@ -759,7 +760,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         modifiers: [KeyModifier.control],
       ),
       callback: () {
-        if (ModalRoute.of(context)?.isCurrent ?? false) {
+        if (ModalRoute.of(context as BuildContext)?.isCurrent ?? false) {
           _moveTabRight();
         }
       },
@@ -804,7 +805,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
 
         TabData currentTab = _tabData[_currentTabIndex];
 
-        _showTabCloseConfirmation(context, currentTab.name, () {
+        _showTabCloseConfirmation(context as BuildContext, currentTab.name, () {
           int oldTabIndex = _currentTabIndex;
 
           if (_currentTabIndex == _tabData.length - 1) {
@@ -1297,6 +1298,10 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
     });
   }
 
+  void highlight() {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     resolveAutoSave();
@@ -1480,6 +1485,20 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
           onPressed:
               (!Settings.layoutLocked) ? () => _displayAddWidgetDialog() : null,
           child: const Text('Add Widget'),
+        ),
+        const VerticalDivider(),
+        // Settingsr
+        MenuItemButton(
+          style: menuButtonStyle.copyWith(
+            backgroundColor: 
+                      const WidgetStatePropertyAll(Color.fromARGB(255, 100, 25, 25)),
+
+          ),
+          leadingIcon: const Icon(Icons.circle_outlined),
+          onPressed: () {
+            
+          },
+          child: const Text('Record'),
         ),
         if (Settings.layoutLocked) ...[
           const VerticalDivider(),
