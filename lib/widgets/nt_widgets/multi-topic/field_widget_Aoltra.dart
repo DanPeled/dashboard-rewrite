@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:elastic_dashboard/widgets/nt_widgets/multi-topic/fms_info.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,9 @@ class FieldWidgetAoltraModel extends NTWidgetModel {
   double _robotWidthMeters = 0.85;
   double _robotLengthMeters = 0.85;
 
+  double ModuleWidthMeters = 0.14;
+  double ModuleLengthMeters = 0.14;
+
   bool _showOtherObjects = true;
   bool _showTrajectories = true;
 
@@ -42,8 +46,6 @@ class FieldWidgetAoltraModel extends NTWidgetModel {
   final List<String> _otherObjectTopics = [];
 
   bool rendered = false;
-
-  List<RobotPropreties> robots = [];
 
   late Function(NT4Topic topic) topicAnnounceListener;
 
@@ -322,16 +324,6 @@ class FieldWidgetAoltraModel extends NTWidgetModel {
     return data;
   }
 
-  void connect(double scaleReduction, {Size? objectSize}) {
-    double width = (objectSize?.width ?? otherObjectSize) *
-        field.pixelsPerMeterHorizontal *
-        scaleReduction;
-
-    double length = (objectSize?.height ?? otherObjectSize) *
-        field.pixelsPerMeterVertical *
-        scaleReduction;
-  }
-
   @override
   Stream<Object> get multiTopicPeriodicStream async* {
     final Duration delayTime = Duration(
@@ -416,6 +408,72 @@ class FieldWidgetAoltra extends NTWidget {
                 (model._field.fieldImageWidth ?? 1)));
   }
 
+  Widget _getTransformedFieldModule(
+      FieldWidgetAoltraModel model,
+      List<double> objectPosition,
+      Offset center,
+      Offset fieldCenter,
+      double scaleReduction,
+      {Size? objectSize}) {
+    for (int i = 0; i < objectPosition.length; i++) {
+      if (!objectPosition[i].isFinite) {
+        objectPosition[i] = 0.0;
+      }
+    }
+
+    double xFromCenter =
+        (objectPosition[0]) * model.field.pixelsPerMeterHorizontal -
+            fieldCenter.dx;
+
+    double yFromCenter = fieldCenter.dy -
+        (objectPosition[1]) * model.field.pixelsPerMeterVertical;
+
+    Offset positionOffset = center +
+        (Offset(xFromCenter + model.field.topLeftCorner.dx,
+                yFromCenter - model.field.topLeftCorner.dy)) *
+            scaleReduction;
+
+    double width = (objectSize?.width ?? model.otherObjectSize) *
+        model.field.pixelsPerMeterHorizontal *
+        scaleReduction;
+
+    double length = (objectSize?.height ?? model.otherObjectSize) *
+        model.field.pixelsPerMeterVertical *
+        scaleReduction;
+
+    Matrix4 transform = Matrix4.translationValues(
+        positionOffset.dx - length / 2, positionOffset.dy - width / 2, 0.0)
+      ..rotateZ(-radians(objectPosition[2]));
+
+    Widget otherObject = Container(
+      alignment: Alignment.center,
+      constraints: const BoxConstraints(
+        minWidth: 4.0,
+        minHeight: 4.0,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.35),
+        border: Border.all(
+          color: gIsRedAlliance ? Colors.red : Colors.blue,
+          width: 4.0,
+        ),
+      ),
+      width: length,
+      height: width,
+      child: CustomPaint(
+        size: Size(width * 0.25, width * 0.25),
+        painter:
+            TrianglePainter(strokeColor: const Color.fromARGB(255, 0, 255, 0)),
+      ),
+    );
+
+    return Transform(
+      origin: Offset(length, width) / 2,
+      transform: transform,
+      child: otherObject,
+    );
+  }
+
   Widget _getTransformedFieldObject(
       FieldWidgetAoltraModel model,
       List<double> objectPosition,
@@ -453,7 +511,27 @@ class FieldWidgetAoltra extends NTWidget {
         positionOffset.dx - length / 2, positionOffset.dy - width / 2, 0.0)
       ..rotateZ(-radians(objectPosition[2]));
 
-    Widget otherObject = SwervePainter(lengthwheel: length, widthwheel: width);
+    Widget otherObject = Container(
+      alignment: Alignment.center,
+      constraints: const BoxConstraints(
+        minWidth: 4.0,
+        minHeight: 4.0,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.35),
+        border: Border.all(
+          color: gIsRedAlliance ? Colors.red : Colors.blue,
+          width: 4.0,
+        ),
+      ),
+      width: length,
+      height: width,
+      child: CustomPaint(
+        size: Size(width * 0.25, width * 0.25),
+        painter:
+            TrianglePainter(strokeColor: const Color.fromARGB(255, 0, 255, 0)),
+      ),
+    );
 
     return Transform(
       origin: Offset(length, width) / 2,
@@ -493,142 +571,132 @@ class FieldWidgetAoltra extends NTWidget {
   Widget build(BuildContext context) {
     FieldWidgetAoltraModel model = cast(context.watch<NTWidgetModel>());
 
-    return MouseRegion(
-      child: StreamBuilder(
-        stream: model.multiTopicPeriodicStream,
-        builder: (context, snapshot) {
-          List<Object?> robotPositionRaw = ntConnection
-                  .getLastAnnouncedValue(model._robotTopicName)
-                  ?.tryCast<List<Object?>>() ??
-              [];
+    return StreamBuilder(
+      stream: model.multiTopicPeriodicStream,
+      builder: (context, snapshot) {
+        List<Object?> robotPositionRaw = ntConnection
+                .getLastAnnouncedValue(model._robotTopicName)
+                ?.tryCast<List<Object?>>() ??
+            [];
 
-          List<double>? robotPosition = [];
-          if (robotPositionRaw.isEmpty) {
-            robotPosition = null;
-          } else {
-            robotPosition = robotPositionRaw.whereType<double>().toList();
-          }
+        List<double>? robotPosition = [];
+        if (robotPositionRaw.isEmpty) {
+          robotPosition = null;
+        } else {
+          robotPosition = robotPositionRaw.whereType<double>().toList();
+        }
 
-          RenderBox? renderBox =
-              context.findAncestorRenderObjectOfType<RenderBox>();
+        RenderBox? renderBox =
+            context.findAncestorRenderObjectOfType<RenderBox>();
 
-          Size size = (renderBox == null || !renderBox.hasSize)
-              ? model.widgetSize ?? const Size(0, 0)
-              : renderBox.size;
+        Size size = (renderBox == null || !renderBox.hasSize)
+            ? model.widgetSize ?? const Size(0, 0)
+            : renderBox.size;
 
-          if (size != const Size(0, 0)) {
-            model.widgetSize = size;
-          }
+        if (size != const Size(0, 0)) {
+          model.widgetSize = size;
+        }
 
-          Offset center = Offset(size.width / 2, size.height / 2);
-          Offset fieldCenter = Offset(
-                  (model.field.fieldImageWidth?.toDouble() ?? 0.0),
-                  (model.field.fieldImageHeight?.toDouble() ?? 0.0)) /
-              2;
+        Offset center = Offset(size.width / 2, size.height / 2);
+        Offset fieldCenter = Offset(
+                (model.field.fieldImageWidth?.toDouble() ?? 0.0),
+                (model.field.fieldImageHeight?.toDouble() ?? 0.0)) /
+            2;
 
-          double scaleReduction = (_getBackgroundFitWidth(model, size)) /
-              (model.field.fieldImageWidth ?? 1);
+        double scaleReduction = (_getBackgroundFitWidth(model, size)) /
+            (model.field.fieldImageWidth ?? 1);
 
-          if (!model.rendered &&
-              renderBox != null &&
-              model.widgetSize != null &&
-              size != const Size(0, 0) &&
-              size.width > 100.0 &&
-              scaleReduction != 0.0 &&
-              fieldCenter != const Offset(0.0, 0.0) &&
-              model.field.fieldImageLoaded) {
-            model.rendered = true;
-          }
+        if (!model.rendered &&
+            renderBox != null &&
+            model.widgetSize != null &&
+            size != const Size(0, 0) &&
+            size.width > 100.0 &&
+            scaleReduction != 0.0 &&
+            fieldCenter != const Offset(0.0, 0.0) &&
+            model.field.fieldImageLoaded) {
+          model.rendered = true;
+        }
 
-          Widget robot = _getTransformedFieldObject(
-              model,
-              robotPosition ?? [0.0, 0.0, 0.0],
-              center,
-              fieldCenter,
-              scaleReduction,
-              objectSize:
-                  Size(model.robotWidthMeters, model.robotLengthMeters));
+        Widget robot = _getTransformedFieldObject(
+            model,
+            robotPosition ?? [0.0, 0.0, 0.0],
+            center,
+            fieldCenter,
+            scaleReduction,
+            objectSize: Size(model.robotWidthMeters, model.robotLengthMeters));
 
-          List<Widget> otherObjects = [];
-          List<List<Offset>> trajectoryPoints = [];
+        List<Widget> otherObjects = [];
+        List<List<Offset>> trajectoryPoints = [];
 
-          if (model.showOtherObjects || model.showTrajectories) {
-            for (String objectTopic in model._otherObjectTopics) {
-              List<Object?>? objectPositionRaw = ntConnection
-                  .getLastAnnouncedValue(objectTopic)
-                  ?.tryCast<List<Object?>>();
+        if (model.showOtherObjects || model.showTrajectories) {
+          for (String objectTopic in model._otherObjectTopics) {
+            List<Object?>? objectPositionRaw = ntConnection
+                .getLastAnnouncedValue(objectTopic)
+                ?.tryCast<List<Object?>>();
 
-              if (objectPositionRaw == null) {
-                continue;
-              }
+            if (objectPositionRaw == null) {
+              continue;
+            }
 
-              bool isTrajectory = objectPositionRaw.length > 24;
+            bool isTrajectory = objectPositionRaw.length > 24;
 
-              if (isTrajectory && !model.showTrajectories) {
-                continue;
-              } else if (!model.showOtherObjects && !isTrajectory) {
-                continue;
-              }
+            if (isTrajectory && !model.showTrajectories) {
+              continue;
+            } else if (!model.showOtherObjects && !isTrajectory) {
+              continue;
+            }
 
-              List<double> objectPosition =
-                  objectPositionRaw.whereType<double>().toList();
+            List<double> objectPosition =
+                objectPositionRaw.whereType<double>().toList();
 
+            if (isTrajectory) {
+              trajectoryPoints.add([]);
+            }
+
+            for (int i = 0; i < objectPosition.length - 2; i += 3) {
               if (isTrajectory) {
-                trajectoryPoints.add([]);
-              }
-
-              for (int i = 0; i < objectPosition.length - 2; i += 3) {
-                if (isTrajectory) {
-                  trajectoryPoints.last.add(
-                    _getTransformedTrajectoryPoint(
-                      model,
-                      objectPosition.sublist(i, i + 2),
-                      center,
-                      fieldCenter,
-                      scaleReduction,
-                    ),
-                  );
-                } else {
-                  otherObjects.add(
-                    _getTransformedFieldObject(
-                      model,
-                      objectPosition.sublist(i, i + 3),
-                      center,
-                      fieldCenter,
-                      scaleReduction,
-                    ),
-                  );
-                }
+                trajectoryPoints.last.add(
+                  _getTransformedTrajectoryPoint(
+                    model,
+                    objectPosition.sublist(i, i + 2),
+                    center,
+                    fieldCenter,
+                    scaleReduction,
+                  ),
+                );
+              } else {
+                otherObjects.add(
+                  _getTransformedFieldObject(
+                    model,
+                    objectPosition.sublist(i, i + 3),
+                    center,
+                    fieldCenter,
+                    scaleReduction,
+                  ),
+                );
               }
             }
           }
+        }
 
-          return MouseRegion(
-            child: Stack(
-              children: [
-                model.field.fieldImage,
-                for (List<Offset> points in trajectoryPoints)
-                  CustomPaint(
-                    painter: TrajectoryPainter(
-                      points: points,
-                      strokeWidth: model.trajectoryPointSize *
-                          model.field.pixelsPerMeterHorizontal *
-                          scaleReduction,
-                    ),
-                  ),
-                robot,
-                ...otherObjects,
-              ],
-            ),
-          );
-        },
-      ),
+        return Stack(
+          children: [
+            model.field.fieldImage,
+            for (List<Offset> points in trajectoryPoints)
+              CustomPaint(
+                painter: TrajectoryPainter(
+                  points: points,
+                  strokeWidth: model.trajectoryPointSize *
+                      model.field.pixelsPerMeterHorizontal *
+                      scaleReduction,
+                ),
+              ),
+            robot,
+            ...otherObjects,
+          ],
+        );
+      },
     );
-  }
-
-  @override
-  void onHover(PointerHoverEvent event) {
-    // TODO: Add position handle here
   }
 }
 
@@ -702,129 +770,5 @@ class TrajectoryPainter extends CustomPainter {
   bool shouldRepaint(TrajectoryPainter oldDelegate) {
     return oldDelegate.points != points ||
         oldDelegate.strokeWidth != strokeWidth;
-  }
-}
-
-// Robot
-class RobotPainter extends StatelessWidget {
-  final Color backgraundColor;
-  final double lengthrobot;
-  final double widthrobot;
-  final Color baparsColor;
-  CustomPainter? centerPainter;
-  final Color? centerPainterColor;
-
-  RobotPainter(
-      {this.backgraundColor = Colors.black,
-      required this.lengthrobot,
-      required this.widthrobot,
-      this.baparsColor = Colors.red,
-      CustomPainter? centerPainter1,
-      this.centerPainterColor,
-      super.key}) {
-    centerPainter = centerPainter1 ??
-        TrianglePainter(
-            strokeColor:
-                centerPainterColor ?? const Color.fromARGB(255, 0, 255, 0));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      constraints: const BoxConstraints(
-        minWidth: 4.0,
-        minHeight: 4.0,
-      ),
-      decoration: BoxDecoration(
-        color: backgraundColor,
-        border: Border.all(
-          color: baparsColor,
-          width: 4.0,
-        ),
-      ),
-      width: lengthrobot,
-      height: widthrobot,
-      child: CustomPaint(
-        size: Size(widthrobot * 0.25, lengthrobot * 0.25),
-        painter: centerPainter,
-      ),
-    );
-  }
-}
-
-// Swerve
-class SwervePainter extends StatelessWidget {
-  final Color backgraundColor;
-  double lengthwheel;
-  double widthwheel;
-  final Color baparsColor;
-
-  SwervePainter(
-      {this.backgraundColor = Colors.black,
-      required this.lengthwheel,
-      required this.widthwheel,
-      this.baparsColor = Colors.red,
-      super.key}) {
-    widthwheel = widthwheel / 2;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      constraints: const BoxConstraints(
-        minWidth: 4.0,
-        minHeight: 4.0,
-      ),
-      decoration: BoxDecoration(
-        color: backgraundColor,
-        border: Border.all(
-          color: baparsColor,
-          width: 4.0,
-        ),
-      ),
-      width: lengthwheel,
-      height: widthwheel,
-    );
-  }
-}
-
-class RobotPropreties {
-  final String _name;
-  final double _width;
-  final double _length;
-  Widget _image;
-  bool hide;
-
-  RobotPropreties(this._name, this._length, this._width, this._image,
-      {this.hide = false});
-
-  void setHide(bool hide) {
-    hide = hide;
-  }
-
-  void setImage(Widget image) {
-    _image = image;
-  }
-
-  Widget getImage() {
-    return _image;
-  }
-
-  String getName() {
-    return _name;
-  }
-
-  double getLength() {
-    return _length;
-  }
-
-  double getWidth() {
-    return _width;
-  }
-
-  bool getHide() {
-    return hide;
   }
 }
