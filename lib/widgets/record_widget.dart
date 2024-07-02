@@ -38,7 +38,7 @@ class _RecordingButtonState extends State<RecordingButton>
       _animationController.stop();
       _animationController.reset();
     });
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
