@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:elastic_dashboard/widgets/record_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -1488,18 +1489,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         ),
         const VerticalDivider(),
         // Settingsr
-        MenuItemButton(
-          style: menuButtonStyle.copyWith(
-            backgroundColor: 
-                      const WidgetStatePropertyAll(Color.fromARGB(255, 100, 25, 25)),
-
-          ),
-          leadingIcon: const Icon(Icons.circle_outlined),
-          onPressed: () {
-            
-          },
-          child: const Text('Record'),
-        ),
+        RecordingButton(),
         if (Settings.layoutLocked) ...[
           const VerticalDivider(),
           // Unlock Layout
