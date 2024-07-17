@@ -43,7 +43,7 @@ class DashboardPage extends StatefulWidget {
   final String version;
   final Function(Color color)? onColorChanged;
 
-  const DashboardPage({
+  DashboardPage({
     super.key,
     required this.preferences,
     required this.version,
@@ -58,6 +58,9 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   late final SharedPreferences _preferences;
   late final UpdateChecker _updateChecker;
   late final RobotNotificationsListener _robotNotificationListener;
+
+  static RecordingButton recordingbutton = new RecordingButton();
+
 
   final List<TabGrid> _grids = [];
 
@@ -1469,7 +1472,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         ),
         const VerticalDivider(),
         // Settingsr
-        RecordingButton(),
+        recordingbutton,
         if (Settings.layoutLocked) ...[
           const VerticalDivider(),
           // Unlock Layout
