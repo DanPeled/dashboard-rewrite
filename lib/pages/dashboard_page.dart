@@ -1356,20 +1356,43 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
 
             // Export layout
             MenuItemButton(
-                style: menuButtonStyle,
-                onPressed: () {
-                  _exportLayout();
-                },
-                shortcut: const SingleActivator(LogicalKeyboardKey.keyS,
-                    shift: true, control: true),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.save_as_outlined),
-                    SizedBox(width: 8),
-                    Text('Save As'),
-                  ],
-                )),
+              style: menuButtonStyle,
+              onPressed: () {
+                _exportLayout();
+              },
+              shortcut: const SingleActivator(LogicalKeyboardKey.keyS,
+                  shift: true, control: true),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.save_as_outlined),
+                  SizedBox(width: 8),
+                  Text('Save As'),
+                ],
+              )
+            ),
+
+            MenuItemButton(
+              style: menuButtonStyle,
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => Play(),
+                  barrierColor: Color.fromARGB(35, 0, 0, 0),
+                );
+              },
+              shortcut: const SingleActivator(LogicalKeyboardKey.keyS,
+                  shift: true, control: true),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.file_open),
+                  SizedBox(width: 8),
+                  Text('record'),
+                ],
+              )
+            ),
+
           ],
           child: const Text(
             'File',

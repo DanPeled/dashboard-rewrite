@@ -154,30 +154,28 @@ class RecordingManger extends StatelessWidget {
 
 
 class Play extends StatelessWidget {
-  
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Color.fromARGB(255, 237, 48, 48),
       content: Row(
-      children: [
-        IconButton(
-          onPressed: (){},
-          icon: Icon(Icons.play_arrow_outlined),
-        ),
-        IconButton(
-          onPressed: (){},
-          icon: Icon(Icons.play_arrow_outlined),
-        ),
-        IconButton(
-          onPressed: (){},
-          icon: Icon(Icons.stop_circle_outlined),
-        ),
-        IconButton(
-          onPressed: (){},
-          icon: Icon(Icons.pause_circle_outline),
-        ),
-      ],
-    ));
+        children: [
+          IconButton(
+            onPressed: (){},
+            icon: Icon(Icons.play_circle_outline),
+          ),
+          IconButton(
+            onPressed: (){},
+            icon: Icon(Icons.stop_circle_outlined),
+          ),
+          IconButton(
+            onPressed: (){},
+            icon: Icon(Icons.pause_circle_outline),
+          ),
+        ],
+      )
+    );
   }
 }
 
