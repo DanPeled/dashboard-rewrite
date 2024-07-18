@@ -59,7 +59,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   late final UpdateChecker _updateChecker;
   late final RobotNotificationsListener _robotNotificationListener;
 
-  static RecordingButton recordingbutton = new RecordingButton();
+  RecordingManger? recordingbutton;
 
 
   final List<TabGrid> _grids = [];
@@ -77,6 +77,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   @override
   void initState() {
     super.initState();
+    recordingbutton  =  RecordingManger(key: widget.key);
+
     _preferences = widget.preferences;
     _updateChecker = UpdateChecker(currentVersion: widget.version);
 
@@ -1472,7 +1474,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         ),
         const VerticalDivider(),
         // Settingsr
-        recordingbutton,
+        recordingbutton!,
         if (Settings.layoutLocked) ...[
           const VerticalDivider(),
           // Unlock Layout
