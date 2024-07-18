@@ -5,8 +5,10 @@ import 'package:elastic_dashboard/services/Record.dart';
 
 
 class RecordingButton extends StatefulWidget {
+
+
   @override
-  _RecordingButtonState createState() => _RecordingButtonState();
+  State <RecordingButton> createState() => _RecordingButtonState();
 }
 
 class _RecordingButtonState extends State<RecordingButton>
@@ -50,13 +52,15 @@ class _RecordingButtonState extends State<RecordingButton>
     stopwatch.stop();
   }
 
-  void recordpridi (String Topic,String date){
+  @override
+  void recordPeriodically (String Topic,String date){
     if (_isRecording){
       for (Record element in TopicRecord) {
          if (element.getTopic() == Topic){
             element.addTimeCode(TimeCode(sender: date, time: stopwatch.elapsed.inMicroseconds));
          }
       }
+      print("2");
     }
     
   } 
