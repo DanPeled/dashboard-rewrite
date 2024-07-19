@@ -60,6 +60,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   late final RobotNotificationsListener _robotNotificationListener;
 
   RecordingManger? recordingbutton;
+  Play _play = Play();
 
 
   final List<TabGrid> _grids = [];
@@ -1375,12 +1376,14 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
             MenuItemButton(
               style: menuButtonStyle,
               onPressed: () {
+              _play.selectFile().whenComplete(() {
                 showDialog(
                   context: context,
-                  builder: (context) => Play(),
+                  builder: (context) => _play,
                   barrierColor: Color.fromARGB(35, 0, 0, 0),
                 );
-              },
+              });
+            },
               shortcut: const SingleActivator(LogicalKeyboardKey.keyS,
                   shift: true, control: true),
               child: const Row(

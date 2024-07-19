@@ -1,12 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:elastic_dashboard/services/Record.dart';
 
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:provider/provider.dart';
+
 
 class RecordingButton extends StatefulWidget {
   void Function()? initState;
@@ -155,88 +158,38 @@ class RecordingManger extends StatelessWidget {
   }
 }
 
-
-// class Play extends StatelessWidget {
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       backgroundColor: Color.fromARGB(255, 237, 48, 48),
-//       content: Column(
-//           mainAxisSize: MainAxisSize.min,
-//         children: [
-//           // TimelineSlider(),
-//           IconButton(
-//             onPressed: (){},
-//             icon: Icon(Icons.play_circle_outline),
-//           ),
-//           IconButton(
-//             onPressed: (){},
-//             icon: Icon(Icons.stop_circle_outlined),
-//           ),
-//           IconButton(
-//             onPressed: (){},
-//             icon: Icon(Icons.pause_circle_outline),
-//           ),
-//           SizedBox(height: 20),
-//           TimelineSlider(),
-//         ],
-//       )
-//     );
-//   }
-// }
-
-
-
-// class TimelineProvider with ChangeNotifier {
-//   double _currentTime = 0;
-//   List<double> _timestamps = [0, 1, 2, 3, 4, 5]; // זמנים לדוגמה
-
-//   double get currentTime => _currentTime;
-//   List<double> get timestamps => _timestamps;
-
-//   void setCurrentTime(double time) {
-//     _currentTime = time;
-//     notifyListeners();
-//   }
-// }
-
-// class TimelineSlider extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<TimelineProvider>(
-//       builder: (context, provider, child) {
-//         return FlutterSlider(
-//           values: [provider.currentTime],
-//           max: provider.timestamps.last,
-//           min: provider.timestamps.first,
-//           handler: FlutterSliderHandler(
-//             child: Material(
-//               type: MaterialType.circle,
-//               color: Colors.blue,
-//               elevation: 3,
-//               child: Container(
-//                 padding: EdgeInsets.all(5),
-//                 child: Icon(
-//                   Icons.play_arrow,
-//                   color: Colors.white,
-//                   size: 25,
-//                 ),
-//               ),
-//             ),
-//           ),
-//           onDragging: (handlerIndex, lowerValue, upperValue) {
-//             provider.setCurrentTime(lowerValue as double);
-//           },
-//         );
-//       },
-//     );
-//   }
-// }
-
 class Play extends StatelessWidget {
+
+  Record? _record;
+  
+
+   Future<void> selectFile() async {
+    // פתח את בוחר הקבצים
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom, 
+      allowedExtensions: ['json']
+    );
+
+    if (result != null) {
+      // קבל את הקובץ שנבחר
+      File file = File(result.files.single.path!);
+
+      final jsonString = await file.readAsString();
+      final jsonMap = jsonDecode(jsonString);
+      try {
+        _record = Record.fromJson(jsonMap);
+      } catch (e) {
+        _record = null;
+        print(e);
+      }
+    }
+    return;
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
     return ChangeNotifierProvider(
       create: (context) => TimelineProvider(),
       child: AlertDialog(
