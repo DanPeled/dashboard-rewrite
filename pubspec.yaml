@@ -23,6 +23,7 @@ dependencies:
   flutter_fancy_tree_view: ^1.1.1
   flutter_hooks: ^0.20.0
   flutter_launcher_icons: ^0.13.1
+  flutter_xlider: ^3.5.0
   github: ^9.17.0
   http: ^1.2.0
   import_sorter: ^4.6.0
