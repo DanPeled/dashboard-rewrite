@@ -29,6 +29,10 @@ class RecordingButton extends StatefulWidget {
   State<RecordingButton> createState() => _RecordingButtonState();
 }
 
+
+
+
+
 class _RecordingButtonState extends State<RecordingButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
@@ -101,6 +105,10 @@ class _RecordingButtonState extends State<RecordingButton>
   }
 }
 
+
+
+
+
 class RecordingManger extends StatelessWidget {
   static List<Record> TopicRecord = [];
   static Stopwatch stopwatch = Stopwatch();
@@ -122,9 +130,12 @@ class RecordingManger extends StatelessWidget {
   }
 
   void stopRecording() {
-    print(jsonEncode(TopicRecord));
-    // print(TopicRecord.first.toJson());
-    TopicRecord.clear();
+    // print(jsonEncode(TopicRecord));
+    // print(DateTime.now().toIso8601String().substring(0,19));
+    selectFolder().whenComplete((){
+      TopicRecord.clear();
+    });
+    
   }
 
   static void recordPeriodically(String Topic, String data) {
@@ -152,15 +163,36 @@ class RecordingManger extends StatelessWidget {
     }
   }
 
+  Future<void> selectFolder() async {
+    // פתח את בוחר הקבצים
+    String? directoryPath = await FilePicker.platform.getDirectoryPath();
+
+      if (directoryPath != null) {
+        // שמור את הקובץ בתיקייה שנבחרה
+        final file = File("$directoryPath/${DateTime.now().toIso8601String().substring(0,19)}.json");
+        final jsonString = jsonEncode(TopicRecord);
+        await file.writeAsString(jsonString);
+        print('File saved to $directoryPath');
+      } else {
+        print('No directory selected');
+      }
+    return;
+  }
+
   @override
   Widget build(BuildContext context) {
     return recordingbutton!;
   }
 }
 
+
+
+
+
+
 class Play extends StatelessWidget {
 
-  Record? _record;
+  List<Record>? TopicRecord;
   
 
    Future<void> selectFile() async {
@@ -175,15 +207,47 @@ class Play extends StatelessWidget {
       File file = File(result.files.single.path!);
 
       final jsonString = await file.readAsString();
-      final jsonMap = jsonDecode(jsonString);
+
+      List<dynamic> jsonData = json.decode(jsonString);
       try {
-        _record = Record.fromJson(jsonMap);
+        TopicRecord = jsonData.map((_record) => Record.fromJson(_record)).toList();
       } catch (e) {
-        _record = null;
+        TopicRecord = null;
         print(e);
       }
     }
     return;
+  }
+
+  Widget _Dragging(){
+    return SizedBox(
+      width: 300, // קביעת רוחב קבוע
+      height: 200, // קביעת גובה קבוע
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.play_circle_outline),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.stop_circle_outlined),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.pause_circle_outline),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          TimelineSlider(),
+        ],
+      ),
+    );
   }
 
 
@@ -193,39 +257,22 @@ class Play extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => TimelineProvider(),
       child: AlertDialog(
-        backgroundColor: Color.fromARGB(255, 237, 48, 48),
-        content: SizedBox(
-          width: 300, // קביעת רוחב קבוע
-          height: 200, // קביעת גובה קבוע
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.play_circle_outline),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.stop_circle_outlined),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.pause_circle_outline),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              TimelineSlider(),
-            ],
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Close'),
           ),
-        ),
+        ],
+        content:_Dragging(),
       ),
     );
   }
 }
+
+
+
 
 class TimelineSlider extends StatelessWidget {
   @override
