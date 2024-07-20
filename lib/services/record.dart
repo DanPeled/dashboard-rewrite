@@ -31,16 +31,16 @@ class Record {
 
   Map<String, dynamic> toJson() {
     return {
-      'timecode': jsonEncode(timecode),
       'Topic': Topic,
+      'timecode': timecode.map((tc) => tc.toJson()).toList(),
     };
   }
 
   factory Record.fromJson(Map<String, dynamic> json1) {
     List<dynamic> jsontimecode = json.decode(json1["timecode"]);
     return Record(
-      timecode: jsontimecode.map((dateAndtime) => TimeCode.fromJson(dateAndtime)).toList(),
       Topic: json1['Topic'],
+      timecode: jsontimecode.map((dateAndtime) => TimeCode.fromJson(dateAndtime)).toList(),
     );
   }
 
@@ -99,7 +99,7 @@ class TimeCode {
     return {
       'time': time,
       'sender': sender,
-    };
+  };
   }
 
   factory TimeCode.fromJson(Map<String, dynamic> json) {

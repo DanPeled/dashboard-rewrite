@@ -140,11 +140,6 @@ class RecordingManger extends StatelessWidget {
 
   static void recordPeriodically(String Topic, String data) {
     if (_isRecording) {
-      if (TopicRecord.isEmpty) {
-        TopicRecord.add(Record(Topic: Topic, timecode: []));
-        TopicRecord.last.addTimeCode(
-            TimeCode(sender: data, time: stopwatch.elapsed.inMicroseconds));
-      }
       iterate(Topic, data);
     }
   }
@@ -158,6 +153,7 @@ class RecordingManger extends StatelessWidget {
         TimeCode(sender: data, time: stopwatch.elapsed.inMilliseconds)
       ]));
     } else {
+      if (rec.gettimecode().last.getTime() != stopwatch.elapsed.inMilliseconds && rec.gettimecode().last.getSender() != data)
       rec.addTimeCode(
           TimeCode(sender: data, time: stopwatch.elapsed.inMilliseconds));
     }
