@@ -2,10 +2,16 @@ import 'package:elastic_dashboard/services/ds_interop.dart';
 import 'package:elastic_dashboard/services/nt4_client.dart';
 import 'package:flutter/foundation.dart';
 
+<<<<<<< HEAD
 /// Manages connections to NetworkTables (NT4) and Driver Station (DS) interoperation clients.
-class NTConnection {
-  static NTConnection instance = NTConnection._internal();
+=======
+typedef SubscriptionIdentification = ({
+  String topic,
+  NT4SubscriptionOptions options
+});
 
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
+class NTConnection {
   late NT4Client _ntClient;
   late DSInteropClient _dsClient;
 
@@ -17,9 +23,12 @@ class NTConnection {
 
   /// Indicates whether the NT4 client is connected.
   bool get isNT4Connected => _ntConnected;
+<<<<<<< HEAD
 
   /// Retrieves the NT4 client instance.
   NT4Client get nt4Client => _ntClient;
+=======
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   /// Indicates whether the Driver Station (DS) client is connected.
   bool get isDSConnected => _dsConnected;
@@ -27,10 +36,19 @@ class NTConnection {
   /// Retrieves the DS client instance.
   DSInteropClient get dsClient => _dsClient;
 
-  NTConnection._internal();
+  int get serverTime => _ntClient.getServerTimeUS();
 
-  factory NTConnection() {
-    return instance;
+  @visibleForTesting
+  List<NT4Subscription> get subscriptions => subscriptionUseCount.keys.toList();
+
+  @visibleForTesting
+  String get serverBaseAddress => _ntClient.serverBaseAddress;
+
+  Map<int, NT4Subscription> subscriptionMap = {};
+  Map<NT4Subscription, int> subscriptionUseCount = {};
+
+  NTConnection(String ipAddress) {
+    nt4Connect(ipAddress);
   }
 
   /// Establishes a connection to the NT4 server using the specified [ipAddress].
@@ -55,7 +73,10 @@ class NTConnection {
         });
 
     // Allows all published topics to be announced
-    _ntClient.subscribeTopicsOnly('/');
+    _ntClient.subscribe(
+      topic: '/',
+      options: const NT4SubscriptionOptions(topicsOnly: true),
+    );
   }
 
   /// Establishes a connection to the Driver Station (DS) client.
@@ -83,9 +104,20 @@ class NTConnection {
     onDisconnectedListeners.add(callback);
   }
 
+<<<<<<< HEAD
   /// Subscribes to a topic on NT4 and retrieves data of type [T] from it.
   ///
   /// Returns null if no data is received within [timeout].
+=======
+  void addTopicAnnounceListener(Function(NT4Topic topic) onAnnounce) {
+    _ntClient.addTopicAnnounceListener(onAnnounce);
+  }
+
+  void removeTopicAnnounceListener(Function(NT4Topic topic) onUnannounce) {
+    _ntClient.removeTopicAnnounceListener(onUnannounce);
+  }
+
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   Future<T?>? subscribeAndRetrieveData<T>(String topic,
       {period = 0.1,
       timeout = const Duration(seconds: 2, milliseconds: 500)}) async {
@@ -134,9 +166,16 @@ class NTConnection {
     }
   }
 
+<<<<<<< HEAD
   /// Stream that emits latency information from the NT4 client.
+=======
+  Map<int, NT4Topic> announcedTopics() {
+    return _ntClient.announcedTopics;
+  }
+
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   Stream<double> latencyStream() {
-    return nt4Client.latencyStream();
+    return _ntClient.latencyStream();
   }
 
   /// Changes the NT4 server IP address if it differs from the current one.
@@ -150,17 +189,53 @@ class NTConnection {
 
   /// Subscribes to a topic on NT4.
   NT4Subscription subscribe(String topic, [double period = 0.1]) {
-    return _ntClient.subscribe(topic, period);
+    NT4SubscriptionOptions subscriptionOptions =
+        NT4SubscriptionOptions(periodicRateSeconds: period);
+
+    int hashCode = Object.hash(topic, subscriptionOptions);
+
+    if (subscriptionMap.containsKey(hashCode)) {
+      NT4Subscription existingSubscription = subscriptionMap[hashCode]!;
+      subscriptionUseCount.update(existingSubscription, (value) => value + 1);
+
+      return existingSubscription;
+    }
+
+    NT4Subscription newSubscription =
+        _ntClient.subscribe(topic: topic, options: subscriptionOptions);
+
+    subscriptionMap[hashCode] = newSubscription;
+    subscriptionUseCount[newSubscription] = 1;
+
+    return newSubscription;
   }
 
   /// Subscribes to all subtopics of a topic on NT4.
   NT4Subscription subscribeAll(String topic, [double period = 0.1]) {
-    return _ntClient.subscribeAll(topic, period);
+    return _ntClient.subscribe(
+        topic: topic,
+        options: NT4SubscriptionOptions(
+          periodicRateSeconds: period,
+          all: true,
+        ));
   }
 
   /// Unsubscribes from a subscription on NT4.
   void unSubscribe(NT4Subscription subscription) {
-    _ntClient.unSubscribe(subscription);
+    if (!subscriptionUseCount.containsKey(subscription)) {
+      _ntClient.unSubscribe(subscription);
+      return;
+    }
+
+    int hashCode = Object.hash(subscription.topic, subscription.options);
+
+    subscriptionUseCount.update(subscription, (value) => value - 1);
+
+    if (subscriptionUseCount[subscription]! <= 0) {
+      subscriptionMap.remove(hashCode);
+      subscriptionUseCount.remove(subscription);
+      _ntClient.unSubscribe(subscription);
+    }
   }
 
   /// Retrieves the NT4 topic from a subscription.
@@ -173,7 +248,18 @@ class NTConnection {
     return _ntClient.getTopicFromName(topic);
   }
 
+<<<<<<< HEAD
   /// Checks if a given NT4 topic is published.
+=======
+  void publishTopic(NT4Topic topic) {
+    _ntClient.publishTopic(topic);
+  }
+
+  NT4Topic publishNewTopic(String name, String type) {
+    return _ntClient.publishNewTopic(name, type);
+  }
+
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   bool isTopicPublished(NT4Topic? topic) {
     return _ntClient.isTopicPublished(topic);
   }
@@ -196,6 +282,11 @@ class NTConnection {
   /// Updates data for a topic on NT4.
   void updateDataFromTopic(NT4Topic topic, dynamic data) {
     _ntClient.addSample(topic, data);
+  }
+
+  @visibleForTesting
+  void updateDataFromTopicName(String topic, dynamic data) {
+    _ntClient.addSampleFromName(topic, data);
   }
 }
 

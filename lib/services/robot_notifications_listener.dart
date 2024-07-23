@@ -8,7 +8,7 @@ import 'package:elastic_dashboard/services/nt_connection.dart';
 /// through the provided [onNotification] callback.
 class RobotNotificationsListener {
   bool _alertFirstRun = true;
-  final NTConnection connection;
+  final NTConnection ntConnection;
   final Function(String title, String description, Icon icon) onNotification;
 
   /// Constructs a [RobotNotificationsListener] instance.
@@ -16,14 +16,14 @@ class RobotNotificationsListener {
   /// Requires an [NTConnection] instance for subscribing to notifications
   /// and a callback [onNotification] to handle received notifications.
   RobotNotificationsListener({
-    required this.connection,
+    required this.ntConnection,
     required this.onNotification,
   });
 
   /// Starts listening to robot notifications.
   void listen() {
     var notifications =
-        ntConnection.subscribeAll('/Elastic/robotnotifications', 0.2);
+        ntConnection.subscribeAll('/Elastic/RobotNotifications', 0.2);
     notifications.listen((alertData, alertTimestamp) {
       if (alertData == null) {
         return;
@@ -39,7 +39,20 @@ class RobotNotificationsListener {
     // Prevent showing a notification when we connect to NT for the first time
     if (_alertFirstRun) {
       _alertFirstRun = false;
-      return;
+
+      // If the alert existed 3 or more seconds before the client connected, ignore it
+      Duration serverTime = Duration(microseconds: ntConnection.serverTime);
+      Duration alertTime = Duration(microseconds: timestamp);
+
+      // In theory if you had high enough latency and there was no existing data,
+      // this would not work as intended. However, if you find yourself with 3
+      // seconds of latency you have a much more serious issue to deal with as you
+      // cannot control your robot with that much network latency, not to mention
+      // that this code wouldn't even be executing since the RTT timestamp delay
+      // would be so high that it would automatically disconnect from NT
+      if ((serverTime - alertTime).inSeconds > 3) {
+        return;
+      }
     }
 
     Map<String, dynamic> data;
@@ -50,7 +63,10 @@ class RobotNotificationsListener {
     }
 
     if (!data.containsKey('level')) {
+<<<<<<< HEAD
       // Invalid data format, do nothing
+=======
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
       return;
     }
 

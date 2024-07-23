@@ -1,3 +1,5 @@
+import 'package:flex_seed_scheme/flex_seed_scheme.dart';
+
 import 'package:elastic_dashboard/services/ip_address_util.dart';
 
 /// Manages application settings and preferences.
@@ -9,6 +11,7 @@ class Settings {
   /// Latest releases link for the Elastic Dashboard.
   static const String releasesLink = '$repositoryLink/releases/latest';
 
+<<<<<<< HEAD
   /// Mode for handling IP addresses.
   static IPAddressMode ipAddressMode = IPAddressMode.driverStation;
 
@@ -37,11 +40,17 @@ class Settings {
   static bool autoSwitchTabs = false;
 
   /// Indicates whether the window is draggable.
+=======
+  // window_manager doesn't support drag disable/maximize
+  // disable on some platforms, this is a dumb workaround for it
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   static bool isWindowDraggable = true;
 
   /// Indicates whether the window is maximizable.
   static bool isWindowMaximizable = true;
+}
 
+<<<<<<< HEAD
   /// Default period for periodic tasks.
   static double defaultPeriod = 0.06;
 
@@ -126,12 +135,47 @@ class Settings {
         throw ArgumentError('Invalid settings key: $key');
     }
   }
+=======
+class Defaults {
+  static IPAddressMode ipAddressMode = IPAddressMode.driverStation;
+
+  static FlexSchemeVariant themeVariant = FlexSchemeVariant.material3Legacy;
+  static const String defaultVariantName = 'Material-3 Legacy (Default)';
+
+  static const String ipAddress = '127.0.0.1';
+  static const int teamNumber = 9999;
+  static const int gridSize = 128;
+  static const bool layoutLocked = false;
+  static const double cornerRadius = 15.0;
+  static const bool showGrid = true;
+  static const bool autoResizeToDS = false;
+
+  static const double defaultPeriod = 0.06;
+  static const double defaultGraphPeriod = 0.033;
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 }
 
 /// Constants for preference keys used in persistent storage.
 class PrefKeys {
+<<<<<<< HEAD
   /// Key for layout preferences.
   static const layout = 'layout';
+=======
+  static String layout = 'layout';
+  static String ipAddress = 'ip_address';
+  static String ipAddressMode = 'ip_address_mode';
+  static String teamNumber = 'team_number';
+  static String teamColor = 'team_color';
+  static String themeVariant = 'theme_variant';
+  static String layoutLocked = 'layout_locked';
+  static String gridSize = 'grid_size';
+  static String cornerRadius = 'corner_radius';
+  static String showGrid = 'show_grid';
+  static String autoResizeToDS = 'auto_resize_to_driver_station';
+  static String rememberWindowPosition = 'remember_window_position';
+  static String defaultPeriod = 'default_period';
+  static String defaultGraphPeriod = 'default_graph_period';
+>>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   /// Key for IP address preferences.
   static const ipAddress = 'ip_address';
