@@ -10,38 +10,12 @@ import 'package:elastic_dashboard/util/tab_data.dart';
 import 'package:elastic_dashboard/widgets/dialog_widgets/dialog_text_input.dart';
 import 'package:elastic_dashboard/widgets/tab_grid.dart';
 
-<<<<<<< HEAD
-/// Represents data for a tab.
-class TabData {
-  /// The name of the tab.
-  String name;
-
-  /// Creates a [TabData] with the given name.
-  TabData({required this.name});
-}
-
-/// A widget that provides an editable tab bar with associated tab views.
-///
-/// Allows for creating, renaming, moving, and closing tabs.
-class EditableTabBar extends StatelessWidget {
-  /// The list of tab views to display.
-  final List<TabGrid> tabViews;
-
-  /// The list of data associated with each tab.
-  final List<TabData> tabData;
-
-  /// Callback function when a new tab is created.
-  final Function(TabData tab) onTabCreate;
-
-  /// Callback function when a tab is destroyed.
-=======
 class EditableTabBar extends StatelessWidget {
   final SharedPreferences preferences;
 
   final List<TabData> tabData;
 
   final Function() onTabCreate;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   final Function(int index) onTabDestroy;
 
   /// Callback function to move a tab to the left.
@@ -109,16 +83,9 @@ class EditableTabBar extends StatelessWidget {
     );
   }
 
-<<<<<<< HEAD
-  /// Creates a new tab with a default name.
-  void createTab() {
-    String tabName = 'Tab ${tabData.length + 1}';
-    TabData data = TabData(name: tabName);
-=======
   void duplicateTab(BuildContext context, int index) {
     onTabDuplicate.call(index);
   }
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   void createTab() {
     onTabCreate();
@@ -321,12 +288,8 @@ class EditableTabBar extends StatelessWidget {
           child: Stack(
             children: [
               Visibility(
-<<<<<<< HEAD
-                visible: Settings.snapToGrid,
-=======
                 visible:
                     preferences.getBool(PrefKeys.showGrid) ?? Defaults.showGrid,
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
                 child: GridPaper(
                   color: const Color.fromARGB(50, 195, 232, 243),
                   interval: (preferences.getInt(PrefKeys.gridSize) ??

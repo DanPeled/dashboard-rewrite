@@ -3,41 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-<<<<<<< HEAD
-class Record {
-  int time;
-  String sender;
-  String data;
-
-  Record({
-    required this.time,
-    required this.sender,
-    required this.data,
-  });
-
-  int getTime() {
-    return time;
-  }
-
-  String getSender() {
-    return sender;
-  }
-
-  String getData() {
-    return data;
-  }
-
-  void setTime(int time) {
-    this.time = time;
-  }
-
-  void setSender(String sender) {
-    this.sender = sender;
-  }
-
-  void setData(String data) {
-    this.data = data;
-=======
 
 class Record {
   List<TimeCode> timecode;
@@ -62,24 +27,10 @@ class Record {
 
   void setTopic(String data) {
     this.Topic = data;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   }
 
   Map<String, dynamic> toJson() {
     return {
-<<<<<<< HEAD
-      'time': time,
-      'sender': sender,
-      'data': data,
-    };
-  }
-
-  factory Record.fromJson(Map<String, dynamic> json) {
-    return Record(
-      time: json['time'],
-      sender: json['sender'],
-      data: json['data'],
-=======
       'Topic': Topic,
       'timecode': timecode.map((tc) => tc.toJson()).toList(),
     };
@@ -90,7 +41,6 @@ class Record {
     return Record(
       Topic: json1['Topic'],
       timecode: jsontimecode.map((dateAndtime) => TimeCode.fromJson(dateAndtime)).toList(),
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
     );
   }
 
@@ -118,8 +68,6 @@ class Record {
     final path = directory.path;
     return '$path/$fileName';
   }
-<<<<<<< HEAD
-=======
 }
 
 class TimeCode {
@@ -160,5 +108,4 @@ class TimeCode {
       sender: json['sender'],
     );
   }
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 }

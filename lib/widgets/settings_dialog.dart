@@ -39,28 +39,6 @@ class SettingsDialog extends StatefulWidget {
   final Function(bool value)? onLayoutLock;
   final Function(String? value)? onDefaultPeriodChanged;
   final Function(String? value)? onDefaultGraphPeriodChanged;
-<<<<<<< HEAD
-  final Function(bool value)? onAutoSaveChanged;
-  final Function(bool value)? onAutoSwitchTabsChanged;
-
-  const SettingsDialog(
-      {super.key,
-      required this.preferences,
-      this.onTeamNumberChanged,
-      this.onIPAddressModeChanged,
-      this.onIPAddressChanged,
-      this.onColorChanged,
-      this.onGridToggle,
-      this.onGridSizeChanged,
-      this.onCornerRadiusChanged,
-      this.onResizeToDSChanged,
-      this.onRememberWindowPositionChanged,
-      this.onLayoutLock,
-      this.onDefaultPeriodChanged,
-      this.onDefaultGraphPeriodChanged,
-      this.onAutoSaveChanged,
-      this.onAutoSwitchTabsChanged});
-=======
   final Function(FlexSchemeVariant variant)? onThemeVariantChanged;
 
   const SettingsDialog({
@@ -81,7 +59,6 @@ class SettingsDialog extends StatefulWidget {
     this.onDefaultGraphPeriodChanged,
     this.onThemeVariantChanged,
   });
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   @override
   State<SettingsDialog> createState() => _SettingsDialogState();
@@ -95,11 +72,7 @@ class _SettingsDialogState extends State<SettingsDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
       content: Container(
         constraints: const BoxConstraints(
-<<<<<<< HEAD
-          maxHeight: 400,
-=======
           maxHeight: 350,
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           maxWidth: 725,
         ),
         child: Row(
@@ -286,15 +259,9 @@ class _SettingsDialogState extends State<SettingsDialog> {
         children: [
           Flexible(
             child: DialogToggleSwitch(
-<<<<<<< HEAD
-              initialValue: widget.preferences.getBool(PrefKeys.snapToGrid) ??
-                  Settings.snapToGrid,
-              label: 'Snap To Grid',
-=======
               initialValue: widget.preferences.getBool(PrefKeys.showGrid) ??
                   Defaults.showGrid,
               label: 'Show Grid',
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
               onToggle: (value) {
                 setState(() {
                   widget.onGridToggle?.call(value);

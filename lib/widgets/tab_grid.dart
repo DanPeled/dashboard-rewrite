@@ -23,18 +23,8 @@ import 'draggable_containers/models/widget_container_model.dart';
 // Used to refresh the tab grid when a widget is added or removed
 // This doesn't use a stateful widget since everything has to be rendered at program startup or data will be lost
 class TabGridModel extends ChangeNotifier {
-<<<<<<< HEAD
-  void notify() {
-    notifyListeners();
-  }
-}
-
-class TabGrid extends StatelessWidget {
-  static Map<String, dynamic>? _copyJsonData;
-=======
   final NTConnection ntConnection;
   final SharedPreferences preferences;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   final List<WidgetContainerModel> _widgetModels = [];
 
   static Map<String, dynamic>? copyJsonData;
@@ -696,11 +686,7 @@ class TabGrid extends StatelessWidget {
   }
 
   void copyWidget(WidgetContainerModel widget) {
-<<<<<<< HEAD
-    _copyJsonData = widget.toJson();
-=======
     copyJsonData = widget.toJson();
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   }
 
   void lockLayout() {
@@ -846,23 +832,9 @@ class TabGrid extends StatelessWidget {
 
       dashboardWidgets.add(
         GestureDetector(
-<<<<<<< HEAD
-          onTap: () {
-            var widget = getWidgetFromContainer(container);
-            widget?.onTap();
-          },
-          onDoubleTap: () {
-            getWidgetFromContainer(container)?.onDoubleTap();
-          },
-          onSecondaryTapUp: (details) {
-            getWidgetFromContainer(container)?.onSecondaryTap();
-
-            if (Settings.layoutLocked) {
-=======
           onSecondaryTapUp: (details) {
             if (model.preferences.getBool(PrefKeys.layoutLocked) ??
                 Defaults.layoutLocked) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
               return;
             }
             List<ContextMenuEntry> menuEntries = [
@@ -1004,39 +976,23 @@ class TabGrid extends StatelessWidget {
           MenuItem(
             label: 'Add Widget',
             icon: Icons.add,
-<<<<<<< HEAD
-            onSelected: () => onAddWidgetPressed.call(),
-=======
             onSelected: () => model.onAddWidgetPressed.call(),
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           ),
           MenuItem(
             label: 'Clear Layout',
             icon: Icons.clear,
-<<<<<<< HEAD
-            onSelected: () => clearWidgets(context),
-          ),
-        ];
-
-        if (_copyJsonData != null) {
-=======
             onSelected: () => model.clearWidgets(context),
           ),
         ];
 
         if (TabGridModel.copyJsonData != null) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           contextMenuEntries.add(
             MenuItem(
               label: 'Paste',
               icon: Icons.paste_outlined,
               onSelected: () {
-<<<<<<< HEAD
-                pasteWidget(_copyJsonData, details.globalPosition);
-=======
                 pasteWidget(
                     model, TabGridModel.copyJsonData, details.localPosition);
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
               },
             ),
           );
@@ -1073,44 +1029,6 @@ class TabGrid extends StatelessWidget {
     );
   }
 
-<<<<<<< HEAD
-  void pasteWidget(Map<String, dynamic>? widgetJson, Offset globalPosition) {
-    if (widgetJson == null) return;
-
-    widgetJson['x'] = getLocalPosition(globalPosition).dx;
-    widgetJson['y'] = getLocalPosition(globalPosition).dy;
-
-    WidgetContainerModel createdWidget = createWidgetFromJson(widgetJson);
-
-    _widgetModels.add(createdWidget);
-    refresh();
-  }
-
-  NTWidget? getWidgetFromNTContainer(NTWidgetContainerModel? container) {
-    return container?.child;
-  }
-
-  NTWidget? getWidgetFromContainer(WidgetContainerModel? container) {
-    NTWidgetContainerModel? w = tryCast<NTWidgetContainerModel>(container);
-    return w?.child;
-  }
-
-  WidgetContainerModel createWidgetFromJson(Map<String, dynamic> json) {
-    String type = json['type'];
-    if (json['type'] == 'List Layout') {
-      switch (type) {
-        case 'List Layout':
-          return ListLayoutModel.fromJson(
-              jsonData: json, tabGrid: this, onDragCancel: null);
-        default:
-          throw ArgumentError('Unknown type: $type');
-      }
-    } else {
-      return NTWidgetContainerModel.fromJson(
-        enabled: ntConnection.isNT4Connected,
-        jsonData: json,
-        onJsonLoadingWarning: null,
-=======
   void pasteWidget(TabGridModel grid, Map<String, dynamic>? widgetJson,
       Offset localPosition) {
     if (widgetJson == null) return;
@@ -1164,7 +1082,6 @@ class TabGrid extends StatelessWidget {
         preferences: grid.preferences,
         enabled: grid.ntConnection.isNT4Connected,
         jsonData: json,
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
       );
     }
   }

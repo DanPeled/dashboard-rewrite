@@ -2,15 +2,11 @@ import 'package:elastic_dashboard/services/ds_interop.dart';
 import 'package:elastic_dashboard/services/nt4_client.dart';
 import 'package:flutter/foundation.dart';
 
-<<<<<<< HEAD
-/// Manages connections to NetworkTables (NT4) and Driver Station (DS) interoperation clients.
-=======
 typedef SubscriptionIdentification = ({
   String topic,
   NT4SubscriptionOptions options
 });
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 class NTConnection {
   late NT4Client _ntClient;
   late DSInteropClient _dsClient;
@@ -23,12 +19,6 @@ class NTConnection {
 
   /// Indicates whether the NT4 client is connected.
   bool get isNT4Connected => _ntConnected;
-<<<<<<< HEAD
-
-  /// Retrieves the NT4 client instance.
-  NT4Client get nt4Client => _ntClient;
-=======
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   /// Indicates whether the Driver Station (DS) client is connected.
   bool get isDSConnected => _dsConnected;
@@ -104,11 +94,6 @@ class NTConnection {
     onDisconnectedListeners.add(callback);
   }
 
-<<<<<<< HEAD
-  /// Subscribes to a topic on NT4 and retrieves data of type [T] from it.
-  ///
-  /// Returns null if no data is received within [timeout].
-=======
   void addTopicAnnounceListener(Function(NT4Topic topic) onAnnounce) {
     _ntClient.addTopicAnnounceListener(onAnnounce);
   }
@@ -117,7 +102,6 @@ class NTConnection {
     _ntClient.removeTopicAnnounceListener(onUnannounce);
   }
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   Future<T?>? subscribeAndRetrieveData<T>(String topic,
       {period = 0.1,
       timeout = const Duration(seconds: 2, milliseconds: 500)}) async {
@@ -166,14 +150,10 @@ class NTConnection {
     }
   }
 
-<<<<<<< HEAD
-  /// Stream that emits latency information from the NT4 client.
-=======
   Map<int, NT4Topic> announcedTopics() {
     return _ntClient.announcedTopics;
   }
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   Stream<double> latencyStream() {
     return _ntClient.latencyStream();
   }
@@ -248,9 +228,6 @@ class NTConnection {
     return _ntClient.getTopicFromName(topic);
   }
 
-<<<<<<< HEAD
-  /// Checks if a given NT4 topic is published.
-=======
   void publishTopic(NT4Topic topic) {
     _ntClient.publishTopic(topic);
   }
@@ -259,7 +236,6 @@ class NTConnection {
     return _ntClient.publishNewTopic(name, type);
   }
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   bool isTopicPublished(NT4Topic? topic) {
     return _ntClient.isTopicPublished(topic);
   }

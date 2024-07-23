@@ -2,11 +2,8 @@ import 'package:elastic_dashboard/widgets/record_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:dot_cast/dot_cast.dart';
-<<<<<<< HEAD
-=======
 import 'package:shared_preferences/shared_preferences.dart';
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 import 'package:elastic_dashboard/services/nt4_client.dart';
 import 'package:elastic_dashboard/services/nt_connection.dart';
 import 'package:elastic_dashboard/services/settings.dart';
@@ -63,14 +60,10 @@ class NTWidgetModel extends ChangeNotifier {
     this.dataType = 'Unknown',
     double? period,
   }) : _topic = topic {
-<<<<<<< HEAD
-    this.period = period ?? Settings.defaultPeriod;
-=======
     this.period = period ??
         preferences.getDouble(PrefKeys.defaultPeriod) ??
         Defaults.defaultPeriod;
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
     init();
   }
 
@@ -89,16 +82,6 @@ class NTWidgetModel extends ChangeNotifier {
     double? period,
   })  : _typeOverride = type,
         _topic = topic {
-<<<<<<< HEAD
-    this.period = period ?? Settings.defaultPeriod;
-    init();
-  }
-
-  /// Creates an NTWidgetModel from JSON data.
-  ///
-  /// [jsonData] is the JSON data to initialize the model.
-  NTWidgetModel.fromJson({required Map<String, dynamic> jsonData}) {
-=======
     this.period = period ??
         preferences.getDouble(PrefKeys.defaultPeriod) ??
         Defaults.defaultPeriod;
@@ -111,7 +94,6 @@ class NTWidgetModel extends ChangeNotifier {
     required this.preferences,
     required Map<String, dynamic> jsonData,
   }) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
     _topic = tryCast(jsonData['topic']) ?? '';
     _period = tryCast(jsonData['period']) ??
         preferences.getDouble(PrefKeys.defaultPeriod) ??

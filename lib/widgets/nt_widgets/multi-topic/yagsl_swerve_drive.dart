@@ -170,19 +170,6 @@ class YAGSLSwerveDrive extends NTWidget {
   Widget build(BuildContext context) {
     YAGSLSwerveDriveModel model = cast(context.watch<NTWidgetModel>());
 
-<<<<<<< HEAD
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      child: StreamBuilder(
-        stream: model.multiTopicPeriodicStream,
-        builder: (context, snapshot) {
-          List<Object?> measuredStatesRaw = tryCast(ntConnection
-                  .getLastAnnouncedValue(model.measuredStatesTopic)) ??
-              [];
-          List<Object?> desiredStatesRaw = tryCast(ntConnection
-                  .getLastAnnouncedValue(model.desiredStatesTopic)) ??
-              [];
-=======
     return StreamBuilder(
       stream: model.multiTopicPeriodicStream,
       builder: (context, snapshot) {
@@ -192,28 +179,18 @@ class YAGSLSwerveDrive extends NTWidget {
         List<Object?> desiredStatesRaw = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.desiredStatesTopic)) ??
             [];
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
           List<double> measuredStates =
               measuredStatesRaw.whereType<double>().toList();
           List<double> desiredStates =
               desiredStatesRaw.whereType<double>().toList();
 
-<<<<<<< HEAD
-          double width = tryCast(
-                  ntConnection.getLastAnnouncedValue(model.robotWidthTopic)) ??
-              1.0;
-          double length = tryCast(
-                  ntConnection.getLastAnnouncedValue(model.robotLengthTopic)) ??
-              width;
-=======
         double width = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.robotWidthTopic)) ??
             1.0;
         double length = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.robotLengthTopic)) ??
             width;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
           if (width <= 0.0) {
             width = 1.0;
@@ -225,15 +202,6 @@ class YAGSLSwerveDrive extends NTWidget {
           double sizeRatio = min(length, width) / max(length, width);
           double lengthWidthRatio = length / width;
 
-<<<<<<< HEAD
-          String rotationUnit = tryCast(ntConnection
-                  .getLastAnnouncedValue(model.rotationUnitTopic)) ??
-              'radians';
-
-          double robotAngle = tryCast(ntConnection
-                  .getLastAnnouncedValue(model.robotRotationTopic)) ??
-              0.0;
-=======
         String rotationUnit = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.rotationUnitTopic)) ??
             'radians';
@@ -241,7 +209,6 @@ class YAGSLSwerveDrive extends NTWidget {
         double robotAngle = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.robotRotationTopic)) ??
             0.0;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
           if (rotationUnit == 'degrees') {
             robotAngle = radians(robotAngle + model._angleOffset);
@@ -249,15 +216,9 @@ class YAGSLSwerveDrive extends NTWidget {
             robotAngle *= 2 * pi + model._angleOffset;
           }
 
-<<<<<<< HEAD
-          double maxSpeed = tryCast(
-                  ntConnection.getLastAnnouncedValue(model.maxSpeedTopic)) ??
-              4.5;
-=======
         double maxSpeed = tryCast(model.ntConnection
                 .getLastAnnouncedValue(model.maxSpeedTopic)) ??
             4.5;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
           if (maxSpeed <= 0.0) {
             maxSpeed = 4.5;

@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import 'package:flutter/material.dart';
-
-class RecordingButton extends StatefulWidget {
-  @override
-  _RecordingButtonState createState() => _RecordingButtonState();
-}
-
-class _RecordingButtonState extends State<RecordingButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  bool _isRecording = false;
-=======
 import 'dart:convert';
 import 'dart:io';
 
@@ -49,7 +36,6 @@ class RecordingButton extends StatefulWidget {
 class _RecordingButtonState extends State<RecordingButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   @override
   void initState() {
@@ -58,47 +44,28 @@ class _RecordingButtonState extends State<RecordingButton>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
-<<<<<<< HEAD
-=======
     widget.initState;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
-<<<<<<< HEAD
-=======
     widget.dispose;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   }
 
   void _startRecording() {
     setState(() {
-<<<<<<< HEAD
-      _isRecording = true;
-      _animationController.repeat(reverse: true);
-    });
-=======
       RecordingManger.isRecording = true;
       _animationController.repeat(reverse: true);
     });
     widget.stopwatch.reset();
     widget.stopwatch.start();
     widget.startRecording;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   }
 
   void _stopRecording() {
     setState(() {
-<<<<<<< HEAD
-      _isRecording = false;
-      _animationController.stop();
-      _animationController.reset();
-    });
-  } 
-=======
       RecordingManger.isRecording = false;
       _animationController.stop();
       _animationController.reset();
@@ -106,7 +73,6 @@ class _RecordingButtonState extends State<RecordingButton>
     widget.stopwatch.stop();
     widget.stopRecording?.call();
   }
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +83,7 @@ class _RecordingButtonState extends State<RecordingButton>
           return ElevatedButton.icon(
             style: ButtonStyle(
               iconColor: WidgetStateProperty.all(
-<<<<<<< HEAD
-                _isRecording
-=======
                 RecordingManger.isRecording
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
                     ? ColorTween(
                         begin: Colors.red,
                         end: Colors.black,
@@ -130,26 +92,17 @@ class _RecordingButtonState extends State<RecordingButton>
               ),
               foregroundColor: WidgetStateProperty.all(Colors.white),
             ),
-<<<<<<< HEAD
-            icon: _isRecording ? const Icon(Icons.circle) : const Icon(Icons.circle_outlined),
-            onPressed: _isRecording ? _stopRecording : _startRecording,
-            label: Text(_isRecording ? 'Recording' : 'Record'),
-=======
             icon: RecordingManger.isRecording
                 ? const Icon(Icons.circle)
                 : const Icon(Icons.circle_outlined),
             onPressed:
                 RecordingManger.isRecording ? _stopRecording : _startRecording,
             label: Text(RecordingManger.isRecording ? 'Recording' : 'Record'),
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           );
         },
       ),
     );
   }
-<<<<<<< HEAD
-}
-=======
 }
 
 
@@ -362,4 +315,3 @@ class TimelineProvider with ChangeNotifier {
     notifyListeners();
   }
 }
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126

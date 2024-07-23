@@ -12,10 +12,7 @@ import 'package:dot_cast/dot_cast.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/stacked_options.dart';
 import 'package:file_selector/file_selector.dart';
-<<<<<<< HEAD
-=======
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
 import 'package:path/path.dart';
 import 'package:popover/popover.dart';
 import 'package:screen_retriever/screen_retriever.dart';
@@ -64,12 +61,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> with WindowListener {
-<<<<<<< HEAD
-  Timer? _timer;
-  late final SharedPreferences _preferences;
-=======
   late final SharedPreferences preferences = widget.preferences;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   late final UpdateChecker _updateChecker;
   late final RobotNotificationsListener _robotNotificationListener;
 
@@ -91,10 +83,6 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   @override
   void initState() {
     super.initState();
-<<<<<<< HEAD
-    _startTimer();
-=======
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
     _preferences = widget.preferences;
     _updateChecker = UpdateChecker(currentVersion: widget.version);
 
@@ -179,14 +167,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         });
       },
       onTabCreated: (tab) {
-<<<<<<< HEAD
-        resolveAutoSave();
-
-        if (Settings.layoutLocked) {
-=======
         if (preferences.getBool(PrefKeys.layoutLocked) ??
             Defaults.layoutLocked) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           return;
         }
 
@@ -206,13 +188,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         ));
       },
       onWidgetAdded: (widgetData) {
-<<<<<<< HEAD
-        resolveAutoSave();
-        if (Settings.layoutLocked) {
-=======
         if (preferences.getBool(PrefKeys.layoutLocked) ??
             Defaults.layoutLocked) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           return;
         }
         // Needs to be done in case if widget data gets erased by the listener
@@ -263,12 +240,8 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
         ntConnection: widget.ntConnection,
         onNotification: (title, description, icon) {
           setState(() {
-<<<<<<< HEAD
-            ColorScheme colorScheme = Theme.of(context as BuildContext).colorScheme;
-=======
             ColorScheme colorScheme =
                 Theme.of(context as BuildContext).colorScheme;
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
             TextTheme textTheme = Theme.of(context as BuildContext).textTheme;
             var widget = ElegantNotification(
               autoDismiss: true,
@@ -1053,17 +1026,9 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
           _updateIPAddress(data);
         },
         onGridToggle: (value) async {
-<<<<<<< HEAD
-          setState(() {
-            Settings.snapToGrid = value;
-          });
-
-          await _preferences.setBool(PrefKeys.snapToGrid, value);
-=======
           await preferences.setBool(PrefKeys.showGrid, value);
 
           setState(() {});
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
         },
         onGridSizeChanged: (gridSize) async {
           if (gridSize == null) {
@@ -1319,13 +1284,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   }
 
   void _moveTabLeft() {
-<<<<<<< HEAD
-    resolveAutoSave();
-
-    if (Settings.layoutLocked) {
-=======
     if (preferences.getBool(PrefKeys.layoutLocked) ?? Defaults.layoutLocked) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
       return;
     }
     if (_currentTabIndex <= 0) {
@@ -1347,12 +1306,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
   }
 
   void _moveTabRight() {
-<<<<<<< HEAD
-    resolveAutoSave();
-    if (Settings.layoutLocked) {
-=======
     if (preferences.getBool(PrefKeys.layoutLocked) ?? Defaults.layoutLocked) {
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
       return;
     }
     if (_currentTabIndex >= _tabData.length - 1) {
@@ -1373,12 +1327,6 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
     });
   }
 
-<<<<<<< HEAD
-  void highlight() {
-
-  }
-
-=======
   void _moveToNextTab() {
     int moveIndex = _currentTabIndex + 1;
 
@@ -1405,7 +1353,6 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
 
   void highlight() {}
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
   @override
   Widget build(BuildContext context) {
     resolveAutoSave();
@@ -1476,22 +1423,6 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
 
             // Export layout
             MenuItemButton(
-<<<<<<< HEAD
-                style: menuButtonStyle,
-                onPressed: () {
-                  _exportLayout();
-                },
-                shortcut: const SingleActivator(LogicalKeyboardKey.keyS,
-                    shift: true, control: true),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.save_as_outlined),
-                    SizedBox(width: 8),
-                    Text('Save As'),
-                  ],
-                )),
-=======
               style: menuButtonStyle,
               onPressed: () {
                 _exportLayout();
@@ -1531,7 +1462,6 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
               )
             ),
 
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
           ],
           child: const Text(
             'File',
@@ -1641,17 +1571,11 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
               : null,
           child: const Text('Add Widget'),
         ),
-<<<<<<< HEAD
-        const VerticalDivider(),
-        // Settingsr
-        RecordingButton(),
-=======
         if ((preferences.getBool(PrefKeys.layoutLocked) ??
             Defaults.layoutLocked)) ...[
         const VerticalDivider(),
         // Settingsr
         recordingbutton!,
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
         if (Settings.layoutLocked) ...[
           const VerticalDivider(),
           // Unlock Layout
@@ -1772,14 +1696,9 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
                           .addDragInWidget(widget, globalPosition);
                     },
                     onNTDragEnd: (widget) {
-<<<<<<< HEAD
-                      _grids[_currentTabIndex].placeDragInWidget(widget);
-                      resolveAutoSave();
-=======
                       _tabData[_currentTabIndex]
                           .tabGrid
                           .placeDragInWidget(widget);
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
                     },
                     onLayoutDragUpdate: (globalPosition, widget) {
                       _tabData[_currentTabIndex]
@@ -1787,14 +1706,9 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
                           .addDragInWidget(widget, globalPosition);
                     },
                     onLayoutDragEnd: (widget) {
-<<<<<<< HEAD
-                      _grids[_currentTabIndex].placeDragInWidget(widget);
-                      resolveAutoSave();
-=======
                       _tabData[_currentTabIndex]
                           .tabGrid
                           .placeDragInWidget(widget);
->>>>>>> 8d8667119a03e9f68a44f6d693542ab070c13126
                     },
                     onClose: () {
                       setState(() => _addWidgetDialogVisible = false);
