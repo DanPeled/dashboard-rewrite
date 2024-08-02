@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:elastic_dashboard/services/log.dart';
+import 'package:elastic_dashboard/services/nt_connection.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dot_cast/dot_cast.dart';
@@ -21,6 +23,10 @@ class GraphModel extends NTWidgetModel {
   double? _maxValue;
   late Color _mainColor;
   late double _lineWidth;
+
+  List<String> _additionalTopics = [
+    "/SmartDashboard/swerve/maxAngularVelocity"
+  ]; // Test topic
 
   get timeDisplayed => _timeDisplayed;
 
@@ -99,6 +105,20 @@ class GraphModel extends NTWidgetModel {
     };
   }
 
+  void addTopic(String topic) {
+    if (!_additionalTopics.contains(topic)) {
+      _additionalTopics.add(topic);
+      refresh();
+    }
+  }
+
+  void removeTopic(String topic) {
+    if (_additionalTopics.contains(topic)) {
+      _additionalTopics.remove(topic);
+      refresh();
+    }
+  }
+
   @override
   List<Widget> getEditProperties(BuildContext context) {
     return [
@@ -130,6 +150,23 @@ class GraphModel extends NTWidgetModel {
             ),
           ),
         ],
+      ),
+      const SizedBox(height: 5),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Flexible(
+            child: DialogTextInput(
+              onSubmit: (value) {
+                if (!_additionalTopics.contains(value)) addTopic(value);
+              },
+              label: 'Additional Topic',
+              initialText: "",
+            ),
+          ),
+        ],
+        // TODO: multiple additional topics instead of one
       ),
       const SizedBox(height: 5),
       Row(
@@ -212,14 +249,15 @@ class GraphWidget extends NTWidget {
     }
 
     return model._graphWidget = _GraphWidgetGraph(
-      initialData: model._graphData,
-      subscription: model.subscription,
-      timeDisplayed: model.timeDisplayed,
-      lineWidth: model.lineWidth,
-      mainColor: model.mainColor,
-      minValue: model.minValue,
-      maxValue: model.maxValue,
-    );
+        initialData: model._graphData,
+        subscription: model.subscription,
+        timeDisplayed: model.timeDisplayed,
+        lineWidth: model.lineWidth,
+        mainColor: model.mainColor,
+        minValue: model.minValue,
+        maxValue: model.maxValue,
+        topic: model.topic,
+        additionalTopics: model._additionalTopics);
   }
 }
 
@@ -230,9 +268,9 @@ class _GraphWidgetGraph extends StatefulWidget {
   final Color mainColor;
   final double timeDisplayed;
   final double lineWidth;
-
+  final String topic;
   final List<_GraphPoint> initialData;
-
+  final List<String> additionalTopics;
   final List<_GraphPoint> _currentData;
 
   set currentData(List<_GraphPoint> data) {
@@ -240,28 +278,35 @@ class _GraphWidgetGraph extends StatefulWidget {
     _currentData.addAll(data);
   }
 
-  const _GraphWidgetGraph({
-    required this.initialData,
-    required this.subscription,
-    required this.timeDisplayed,
-    required this.mainColor,
-    required this.lineWidth,
-    this.minValue,
-    this.maxValue,
-  }) : _currentData = initialData;
+  const _GraphWidgetGraph(
+      {required this.initialData,
+      required this.subscription,
+      required this.timeDisplayed,
+      required this.mainColor,
+      required this.lineWidth,
+      this.minValue,
+      this.maxValue,
+      required this.topic,
+      required this.additionalTopics})
+      : _currentData = initialData;
 
   List<_GraphPoint> getCurrentData() {
     return _currentData;
   }
 
   @override
-  State<_GraphWidgetGraph> createState() => _GraphWidgetGraphState();
+  State<_GraphWidgetGraph> createState() =>
+      _GraphWidgetGraphState(topic: topic, additionalTopics: additionalTopics);
 }
 
 class _GraphWidgetGraphState extends State<_GraphWidgetGraph> {
   ChartSeriesController? _seriesController;
   late List<_GraphPoint> _graphData;
   StreamSubscription<Object?>? _subscriptionListener;
+  final String topic;
+  List<String> additionalTopics;
+
+  _GraphWidgetGraphState({required this.topic, required this.additionalTopics});
 
   @override
   void initState() {
@@ -316,6 +361,50 @@ class _GraphWidgetGraphState extends State<_GraphWidgetGraph> {
     );
   }
 
+  void handleData(data) {
+    List<int> addedIndexes = [];
+    List<int> removedIndexes = [];
+
+    double currentTime = DateTime.now().microsecondsSinceEpoch.toDouble();
+
+    _graphData.add(_GraphPoint(x: currentTime, y: tryCast(data) ?? 0.0));
+
+    int indexOffset = 0;
+
+    while (currentTime - _graphData[0].x > widget.timeDisplayed * 1e6 &&
+        _graphData.length > 1) {
+      _graphData.removeAt(0);
+      removedIndexes.add(indexOffset++);
+    }
+
+    int existingIndex = _graphData.indexWhere((e) => e.x == currentTime);
+    while (existingIndex != -1 &&
+        existingIndex != _graphData.length - 1 &&
+        _graphData.length > 1) {
+      removedIndexes.add(existingIndex + indexOffset++);
+      _graphData.removeAt(existingIndex);
+
+      existingIndex = _graphData.indexWhere((e) => e.x == currentTime);
+    }
+
+    if (_graphData.last.x - _graphData.first.x < widget.timeDisplayed * 1e6) {
+      _graphData.insert(
+          0,
+          _GraphPoint(
+            x: _graphData.last.x - widget.timeDisplayed * 1e6,
+            y: _graphData.first.y,
+          ));
+      addedIndexes.add(0);
+    }
+
+    addedIndexes.add(_graphData.length - 1);
+
+    _seriesController?.updateDataSource(
+      addedDataIndexes: addedIndexes,
+      removedDataIndexes: removedIndexes,
+    );
+  }
+
   void _initializeListener() {
     _subscriptionListener?.cancel();
     _subscriptionListener =
@@ -324,77 +413,73 @@ class _GraphWidgetGraphState extends State<_GraphWidgetGraph> {
         return;
       }
       if (data != null) {
-        List<int> addedIndexes = [];
-        List<int> removedIndexes = [];
-
-        double currentTime = DateTime.now().microsecondsSinceEpoch.toDouble();
-
-        _graphData.add(_GraphPoint(x: currentTime, y: tryCast(data) ?? 0.0));
-
-        int indexOffset = 0;
-
-        while (currentTime - _graphData[0].x > widget.timeDisplayed * 1e6 &&
-            _graphData.length > 1) {
-          _graphData.removeAt(0);
-          removedIndexes.add(indexOffset++);
-        }
-
-        int existingIndex = _graphData.indexWhere((e) => e.x == currentTime);
-        while (existingIndex != -1 &&
-            existingIndex != _graphData.length - 1 &&
-            _graphData.length > 1) {
-          removedIndexes.add(existingIndex + indexOffset++);
-          _graphData.removeAt(existingIndex);
-
-          existingIndex = _graphData.indexWhere((e) => e.x == currentTime);
-        }
-
-        if (_graphData.last.x - _graphData.first.x <
-            widget.timeDisplayed * 1e6) {
-          _graphData.insert(
-              0,
-              _GraphPoint(
-                x: _graphData.last.x - widget.timeDisplayed * 1e6,
-                y: _graphData.first.y,
-              ));
-          addedIndexes.add(0);
-        }
-
-        addedIndexes.add(_graphData.length - 1);
-
-        _seriesController?.updateDataSource(
-          addedDataIndexes: addedIndexes,
-          removedDataIndexes: removedIndexes,
-        );
+        handleData(data);
       } else if (_graphData.length > 1) {
         _resetGraphData();
       }
-
       widget.currentData = _graphData;
     });
   }
 
-  List<FastLineSeries<_GraphPoint, num>> _getChartData() {
-    return <FastLineSeries<_GraphPoint, num>>[
-      FastLineSeries<_GraphPoint, num>(
+  List<_GraphPoint> handleAdditionalTopics(String topic) {
+    List<_GraphPoint> points = [];
+    Object? valueObj = ntConnection.getLastAnnouncedValue(topic);
+    double value = 0.0;
+
+    if (valueObj is int) {
+      value = valueObj.toInt().toDouble();
+    }
+
+    points.add(_GraphPoint(
+        x: DateTime.now().microsecondsSinceEpoch.toDouble(), y: value));
+    for (var element in points) {
+      logger.info("X: ${element.x}, Y: ${element.y}");
+    }
+    return points;
+  }
+
+  List<XyDataSeries<_GraphPoint, num>> _getChartData() {
+    List<XyDataSeries<_GraphPoint, num>> graphs = [];
+    logger.info(topic);
+    graphs.add(FastLineSeries<_GraphPoint, num>(
+      name: topic,
+      animationDuration: 0.0,
+      animationDelay: 0.0,
+      sortingOrder: SortingOrder.ascending,
+      onRendererCreated: (controller) => _seriesController = controller,
+      color: widget.mainColor,
+      width: widget.lineWidth,
+      dataSource: _graphData,
+      xValueMapper: (value, index) {
+        return value.x;
+      },
+      yValueMapper: (value, index) {
+        return value.y;
+      },
+      sortFieldValueMapper: (datum, index) {
+        return datum.x;
+      },
+    ));
+
+    //BUG: when adding the additional topics it bugs out the original
+    for (var additionalTopic in additionalTopics) {
+      logger.info(additionalTopic);
+      List<_GraphPoint> points = handleAdditionalTopics(additionalTopic);
+      graphs.add(FastLineSeries<_GraphPoint, num>(
+        name: additionalTopic,
         animationDuration: 0.0,
         animationDelay: 0.0,
         sortingOrder: SortingOrder.ascending,
-        onRendererCreated: (controller) => _seriesController = controller,
-        color: widget.mainColor,
+        color: const Color.fromARGB(255, 69, 71, 73),
         width: widget.lineWidth,
-        dataSource: _graphData,
-        xValueMapper: (value, index) {
-          return value.x;
-        },
-        yValueMapper: (value, index) {
-          return value.y;
-        },
-        sortFieldValueMapper: (datum, index) {
-          return datum.x;
-        },
-      ),
-    ];
+        dataSource: points,
+        xValueMapper: (value, index) => value.x,
+        yValueMapper: (value, index) => value.y,
+        sortFieldValueMapper: (datum, index) => datum.x,
+      ));
+    }
+
+    return graphs;
   }
 
   @override
