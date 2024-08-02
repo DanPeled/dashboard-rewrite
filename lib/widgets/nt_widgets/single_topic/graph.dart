@@ -262,7 +262,8 @@ class GraphWidget extends NTWidget {
         minValue: model.minValue,
         maxValue: model.maxValue,
         topic: model.topic,
-        additionalTopics: model._additionalTopics);
+        additionalTopics: model._additionalTopics,
+        ntConnection: model.ntConnection);
   }
 }
 
@@ -277,7 +278,7 @@ class _GraphWidgetGraph extends StatefulWidget {
   final List<_GraphPoint> initialData;
   final List<String> additionalTopics;
   final List<_GraphPoint> _currentData;
-
+  final NTConnection ntConnection;
   set currentData(List<_GraphPoint> data) {
     _currentData.clear();
     _currentData.addAll(data);
@@ -292,7 +293,8 @@ class _GraphWidgetGraph extends StatefulWidget {
       this.minValue,
       this.maxValue,
       required this.topic,
-      required this.additionalTopics})
+      required this.additionalTopics,
+      required this.ntConnection})
       : _currentData = initialData;
 
   List<_GraphPoint> getCurrentData() {
@@ -300,8 +302,10 @@ class _GraphWidgetGraph extends StatefulWidget {
   }
 
   @override
-  State<_GraphWidgetGraph> createState() =>
-      _GraphWidgetGraphState(topic: topic, additionalTopics: additionalTopics);
+  State<_GraphWidgetGraph> createState() => _GraphWidgetGraphState(
+      topic: topic,
+      additionalTopics: additionalTopics,
+      ntConnection: ntConnection);
 }
 
 class _GraphWidgetGraphState extends State<_GraphWidgetGraph> {
@@ -310,8 +314,12 @@ class _GraphWidgetGraphState extends State<_GraphWidgetGraph> {
   StreamSubscription<Object?>? _subscriptionListener;
   final String topic;
   List<String> additionalTopics;
+  NTConnection ntConnection;
 
-  _GraphWidgetGraphState({required this.topic, required this.additionalTopics});
+  _GraphWidgetGraphState(
+      {required this.topic,
+      required this.additionalTopics,
+      required this.ntConnection});
 
   @override
   void initState() {
