@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:elastic_dashboard/widgets/dialog_widgets/shortcut_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/stacked_options.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flex_seed_scheme/flex_seed_scheme.dart';
+import 'package:flutter/widgets.dart';
 import 'package:popover/popover.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1462,7 +1464,7 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
                     : const Icon(Icons.lock_outline),
                 child: Text(
                     '${(preferences.getBool(PrefKeys.layoutLocked) ?? Defaults.layoutLocked) ? 'Unlock' : 'Lock'} Layout'),
-              )
+              ),
             ],
             child: const Text(
               'Edit',
@@ -1501,6 +1503,20 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
                 ],
               ),
             ),
+            MenuItemButton(
+              style: menuButtonStyle,
+              onPressed: () {
+                _openShortcutView();
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.help_outline),
+                  SizedBox(width: 8),
+                  Text('Shortcuts'),
+                ],
+              ),
+            )
           ],
           child: const Text(
             'Help',
@@ -1721,6 +1737,70 @@ class _DashboardPageState extends State<DashboardPage> with WindowListener {
           ],
         ),
       ),
+    );
+  }
+
+  void _openShortcutView() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Shorcuts"),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return SizedBox(
+                width: 375,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "File Interactions",
+                      textScaler: TextScaler.linear(1.2),
+                    ),
+                    const Divider(),
+                    ShortcutView(
+                      hotkey: HotKey(
+                        LogicalKeyboardKey.keyS,
+                        modifiers: [KeyModifier.control],
+                      ),
+                      title: "Save Layout",
+                    ),
+                    ShortcutView(
+                      hotkey: HotKey(
+                        LogicalKeyboardKey.keyS,
+                        modifiers: [KeyModifier.control, KeyModifier.shift],
+                      ),
+                      title: "Save Layout As",
+                    ),
+                    ShortcutView(
+                      hotkey: HotKey(LogicalKeyboardKey.keyO,
+                          modifiers: [KeyModifier.control]),
+                      title: "Open Layout",
+                    ),
+                    const Divider(),
+                    const Text(
+                      "Tab Interaction",
+                      textScaler: TextScaler.linear(1.2),
+                    ),
+                    const Divider(),
+                    const ShortcutView(
+                        title: "Goto Tab: Control + Tab num (1-9)"),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
