@@ -1,65 +1,84 @@
 #!/bin/bash
 
-# Ensure the script is run from the Flutter project's root directory
-if [ ! -f "pubspec.yaml" ]; then
-  echo "This script must be run from the root of a Flutter project"
+PUBSPEC_FILE="pubspec.yaml"
+OUTPUT_DIR="build/linux/deb_package"
+BUNDLE_DIR="build/linux/x64/release/bundle"
+CONTROL_FILE="$OUTPUT_DIR/DEBIAN/control"
+DESKTOP_FILE="$OUTPUT_DIR/usr/share/applications/$APP_NAME.desktop"
+
+function read_pubspec() {
+  key=$1
+  yq eval ".${key}" "$PUBSPEC_FILE"
+}
+
+if [[ ! -f "$PUBSPEC_FILE" ]]; then
+  echo "Error: pubspec.yaml not found! Ensure this script is run in the root of your Flutter project."
   exit 1
 fi
 
-# Parse the pubspec.yaml file to get the necessary data
-APP_NAME_ORIG=$(grep -m 1 name pubspec.yaml | awk '{print $2}')
+APP_NAME=$(read_pubspec "name")
+VERSION=$(read_pubspec "version")
+DESCRIPTION=$(read_pubspec "description")
+MAINTAINER="Gold86"
 
-# Replace underscores with dashes in the app name
-APP_NAME=$(echo "$APP_NAME_ORIG" | tr '_' '-')
-APP_VERSION=$(grep -m 1 version pubspec.yaml | awk '{print $2}')
+if [[ -z "$APP_NAME" || -z "$VERSION" || -z "$DESCRIPTION" ]]; then
+  echo "Error: Missing required values in pubspec.yaml."
+  exit 1
+fi
 
-# Sanitize version to ensure no newline or invalid characters
-APP_VERSION=$(echo "$APP_VERSION" | tr -d '\n' | tr -d '\r')
-DESCRIPTION=$(grep description pubspec.yaml | awk '{print $2}')
-# Define other package properties
-ARCHITECTURE="amd64"                        # Assuming 64-bit Linux
-DEPENDENCIES="libgtk-3-0, libflutter-linux" # Adjust based on actual dependencies
+# Default maintainer if not found
+if [[ -z "$MAINTAINER" ]]; then
+  MAINTAINER="Unknown"
+fi
 
-# Create directories for packaging
-PACKAGE_DIR="$APP_NAME-package"
-BIN_DIR="$PACKAGE_DIR/usr/local/bin"
-LIB_DIR="$PACKAGE_DIR/usr/local/lib" # Directory for shared libraries
-DEBIAN_DIR="$PACKAGE_DIR/DEBIAN"
-TAR_DIR="$PACKAGE_DIR"
+# Dependencies for Linux app
+DEPENDENCIES="libc6, libstdc++6, libgtk-3-0"
 
-mkdir -p "$BIN_DIR"
-mkdir -p "$LIB_DIR"
-mkdir -p "$DEBIAN_DIR"
+echo "Packaging Flutter app '$APP_NAME' version '$VERSION'..."
 
-# Build the Flutter executable and copy to the bin directory
-flutter build linux
-cp build/linux/x64/release/bundle/$APP_NAME_ORIG "$BIN_DIR/"
+echo "Building Flutter app for Linux..."
+flutter build linux --release
 
-# Copy the libapp.so file to the lib directory
-cp build/lib/libapp.so "$LIB_DIR/"
+echo "Preparing DEB package structure..."
+mkdir -p "$OUTPUT_DIR/DEBIAN" "$OUTPUT_DIR/usr/share/$APP_NAME" "$OUTPUT_DIR/usr/share/applications"
 
-# Create the DEBIAN/control file with necessary package metadata
-cat <<EOF >"$DEBIAN_DIR/control"
-Package: $APP_NAME
-Version: $APP_VERSION
-Architecture: $ARCHITECTURE
-Maintainer: Gold87 
-Installed-Size: $(du -s $BIN_DIR | awk '{print $1}')
-Depends: $DEPENDENCIES
-Section: utils
+# Copy built files
+cp -r "$BUNDLE_DIR/"* "$OUTPUT_DIR/usr/share/$APP_NAME"
+
+# Create control file
+echo "Creating control file..."
+cat >"$CONTROL_FILE" <<EOL
+Package: elastic-dashboard
+Version: $VERSION
+Section: base
 Priority: optional
+Architecture: amd64
+Maintainer: $MAINTAINER
+Depends: $DEPENDENCIES
 Description: $DESCRIPTION
-EOF
+EOL
 
-# Build the .deb package
-dpkg-deb --build "$PACKAGE_DIR"
-echo "DEB package created: $PACKAGE_DIR.deb"
+# Create desktop entry
+echo "Creating desktop entry..."
+cat >"$DESKTOP_FILE" <<EOL
+[Desktop Entry]
+Name=$APP_NAME
+Comment=$DESCRIPTION
+Exec=/usr/share/$APP_NAME/$APP_NAME
+Icon=$APP_NAME
+Terminal=false
+Type=Application
+Categories=Utility;
+EOL
 
-# Create a .tar.gz archive of the Flutter app
-tar -czvf "$APP_NAME-$APP_VERSION-linux.tar.gz" -C build/linux/x64/release/bundle $APP_NAME
-echo "TAR.GZ package created: $APP_NAME-$APP_VERSION-linux.tar.gz"
+# Ensure executable permissions on the app binary
+chmod +x "$OUTPUT_DIR/usr/share/$APP_NAME/$APP_NAME"
+
+# Build .deb package
+echo "Building .deb package..."
+dpkg-deb --build "$OUTPUT_DIR" "${APP_NAME}_${VERSION}_amd64.deb"
 
 # Clean up
-rm -rf "$PACKAGE_DIR"
+rm -rf "$OUTPUT_DIR"
 
-echo "Packaging complete."
+echo "Package '${APP_NAME}_${VERSION}_amd64.deb' created successfully!"
