@@ -71,8 +71,12 @@ jobs:
           mkdir -p elasticlib/libs-cpp
           curl -L -o elasticlib/libs-cpp/ntcore-cpp-2025.2.1.so https://frcmaven.wpi.edu/release/edu/wpi/first/ntcore/ntcore-cpp/2025.2.1/ntcore-cpp-2025.2.1.so
           curl -L -o elasticlib/libs-cpp/wpimath-cpp-2025.2.1.so https://frcmaven.wpi.edu/release/edu/wpi/first/wpimath/wpimath-cpp/2025.2.1/wpimath-cpp-2025.2.1.so
-          curl -L -o elasticlib/libs-cpp/wpiunits-cpp-2025.2.1.so https://frcmaven.wpi.edu/release/edu/wpi/first/wpiunits/wpiunits-cpp/2025.2.1/wpiunits-cpp-2025.2.1.so
           curl -L -o elasticlib/libs-cpp/wpiutil-cpp-2025.2.1.so https://frcmaven.wpi.edu/release/edu/wpi/first/wpiutil/wpiutil-cpp/2025.2.1/wpiutil-cpp-2025.2.1.so
+
+      - name: Download Units Header Files
+        run: |
+          mkdir -p elasticlib/units
+          curl -L -o elasticlib/units/units.hpp https://raw.githubusercontent.com/nholthaus/units/master/units.hpp
 
       - name: Install g++ and make
         run: |
@@ -81,8 +85,8 @@ jobs:
 
       - name: Compile C++ Code
         run: |
-          g++ -std=c++17 -o elasticlib/elasticlib.o -c elasticlib/elasticlib.cpp
+          g++ -std=c++17 -Ielasticlib/units -o elasticlib/elasticlib.o -c elasticlib/elasticlib.cpp
 
       - name: Link C++ Code
         run: |
-          g++ -o elasticlib/elasticlib elasticlib/elasticlib.o -Lelasticlib/libs-cpp -lntcore-cpp -lwpimath-cpp -lwpiunits-cpp -lwpiutil-cpp
+          g++ -o elasticlib/elasticlib elasticlib/elasticlib.o -Lelasticlib/libs-cpp -lntcore-cpp -lwpimath-cpp -lwpiutil-cpp
