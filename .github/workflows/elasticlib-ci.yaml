@@ -76,7 +76,7 @@ jobs:
       - name: Download Units Header Files
         run: |
           mkdir -p elasticlib/units
-          curl -L -o elasticlib/units/units.hpp https://raw.githubusercontent.com/nholthaus/units/master/units.hpp
+          curl -L -o elasticlib/units/units.hpp https://raw.githubusercontent.com/nholthaus/units/master/include/units.h
 
       - name: Install g++ and make
         run: |
