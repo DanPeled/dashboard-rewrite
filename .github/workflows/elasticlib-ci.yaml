@@ -31,6 +31,7 @@ jobs:
         run: git --no-pager diff --exit-code HEAD
 
   build-java:
+    name: "Build Java"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
